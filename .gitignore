@@ -160,7 +160,10 @@ cython_debug/
 #.idea/
 
 data/
-.DS_Store/
 .Rproj.user
 *.png
 *.csv
+*.zip
+*.pdf 
+*.xlsx
+.DS_Store

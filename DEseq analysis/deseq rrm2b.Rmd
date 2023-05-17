@@ -6,18 +6,105 @@ output: html_notebook
 This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
 
 Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+```{r}
+# load libraries
+library(DESeq2)
+library(tidyverse)
+```
 
 ```{r}
-countData <- read.csv('/Users/shanghongsim/Documents/GitHub/RRM2B-Code-Repository/out.csv', header = TRUE)
+countData <- read.csv('/Users/shanghongsim/Documents/GitHub/RRM2B-Code-Repository/countDataBRCA.csv', header = TRUE)
+colData <- read.csv('/Users/shanghongsim/Documents/GitHub/RRM2B-Code-Repository/colDataBRCA.csv', header = TRUE)
+
+```
+
+```{r}
+rownames(countData) <- countData$sample
+dim(countData)
+```
+
+```{r}
+countData <- subset(countData, select = -c(sample) )
+dim(countData)
+```
+
+```{r}
+rownames(colData) <- colnames(countData)
+colData <- subset(colData, select = -c(X) )
+```
+
+```{r}
+length(rownames(colData))
+length(colnames(countData))
+```
+
+
+```{r}
+all(colnames(countData) %in% rownames(colData))
+```
+
+```{r}
 head(countData)
 ```
 ```{r}
-#options(max.print=999999)
-#colnames(countData)
-
-colData <- countData$TP53.levels
-countData <- t(subset(countData, select = -c(TP53.levels) ))
+head(colData)
 ```
+
+```{r}
+all(colnames(countData) == rownames(colData))
+```
+```{r}
+dds <- DESeqDataSetFromMatrix(countData = round(countData),
+                       colData = colData,
+                       design = ~ RRM2B_levels)
+
+dds
+```
+```{r}
+# pre-filtering: removing rows with low gene counts
+# keeping rows that have at least 10 reads total
+keep <- rowSums(counts(dds)) >= 10
+dds <- dds[keep,]
+
+dds
+
+# set the factor level
+dds$RRM2B_levels <- relevel(dds$RRM2B_levels, ref = "Top 25%")
+
+# NOTE: collapse technical replicates
+
+# Step 3: Run DESeq ----------------------
+dds <- DESeq(dds)
+res <- results(dds)
+
+res
+
+```
+```{r}
+# Explore Results ----------------
+
+summary(res)
+
+res0.01 <- results(dds, alpha = 0.01)
+summary(res0.01)
+
+# contrasts
+resultsNames(dds)
+
+# e.g.: treated_4hrs, treated_8hrs, untreated
+
+results(dds, contrast = c("dexamethasone", "treated_4hrs", "untreated"))
+
+
+
+```
+
+```{r}
+# MA plot
+plotMA(res)
+
+```
+
 Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
 
 When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
