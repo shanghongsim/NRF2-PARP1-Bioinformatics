@@ -66,6 +66,11 @@ def process_data(df, targets, x_var_names = None, y_var_names = None, pheno_filt
     df_filtered=(df_filtered-df_filtered.median())/(df_filtered.std()+1)
     data = df_filtered  
 
+    print(set(x_var_names).symmetric_difference(set(data.columns)))
+    print(set(y_var_names).symmetric_difference(set(data.columns)))
+    x_var_names = list(set(x_var_names).intersection(set(data.columns)))
+    y_var_names = list(set(y_var_names).intersection(set(data.columns)))
+
     if x_var_names != None:
         x_var_gene_set = data[x_var_names]
         x_var_gene_set["x_composite_score"] = x_var_gene_set.mean(axis = 1)
