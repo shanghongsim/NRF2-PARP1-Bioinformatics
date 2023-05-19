@@ -57,17 +57,13 @@ def process_data(df, targets, x_var_names = None, y_var_names = None, pheno_filt
     imp_mean = SimpleImputer(missing_values=np.nan, strategy='mean')
     output = imp_mean.fit_transform(df_filtered)
     df_filtered = pd.DataFrame(output, columns = imp_mean.get_feature_names_out().tolist(), index = df_filtered.index)
-    
-    # print(df_filtered.isnull().any())
-    
-    df_filtered = df_filtered.astype(np.float64)
 
     # scale numerical data
+    df_filtered = df_filtered.astype(np.float64)
     df_filtered = np.log10(df_filtered+1)
 
     # for each sequenced gene were rescaled to set the median equal to 1
     df_filtered=(df_filtered-df_filtered.median())/(df_filtered.std()+1)
-
     data = df_filtered  
 
     if x_var_names != None:
@@ -87,14 +83,14 @@ def process_data(df, targets, x_var_names = None, y_var_names = None, pheno_filt
     return data
 
 
-def analyse(data, fig, name, ax, fn, x_label, y_label, x_target = "RRM2B", y_target = "composite_score", ):
+def analyse(data, fig, db, ax, fn, x_label, y_label, x_target = "x_composite_score", y_target = "y_composite_score"):
+    
     #find line of best fit
     y, x = data[y_target].to_numpy(), data[x_target].to_numpy()
     a, b = np.polyfit(x, y, 1)
 
-    iqr = data[x_target].T.describe()
-
     # bin the patients into quartiles based on G6PD expression
+    iqr = data[x_target].T.describe()
     data["RRM2B levels"] = pd.cut(data["RRM2B"],
                     bins=[ iqr["min"], iqr["25%"], iqr["75%"], iqr["max"]],
                     labels=["Bottom 25%", "-", "Top 25%"])
@@ -105,8 +101,7 @@ def analyse(data, fig, name, ax, fn, x_label, y_label, x_target = "RRM2B", y_tar
     #find p-value
     n = data.shape[0]
     t = (r-math.sqrt(n-2))/math.sqrt(1-(r**2))
-    p = stats.t.sf(abs(t), df=n)*2
-    
+    p = stats.t.sf(abs(t), df=n)*2 
     if p < 0.0001:
         pval = "<0.0001"
     elif p <0.001:
@@ -126,6 +121,7 @@ def analyse(data, fig, name, ax, fn, x_label, y_label, x_target = "RRM2B", y_tar
     ax.plot(x, a*x+b, color="black")
     ax.set_ylabel(y_label,fontsize = 28)
     ax.set_xlabel(x_label + " \n (r = " + str(round(r, 4)) + "," + " p = " + pval +")",fontsize = 25)
+    name = db + " (n = " + str(data.shape[0]) + ")"
     ax.set_title(name, fontsize = 30)
     ax.tick_params(axis='both', which='major', labelsize=25)
     plt.show()
