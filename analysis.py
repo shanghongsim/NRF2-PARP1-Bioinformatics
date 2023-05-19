@@ -8,6 +8,22 @@ import seaborn as sns # for generating visualizations, better support with panda
 from scipy import stats
 from sklearn.impute import SimpleImputer
 
+def get_data(data, hccdb, db):
+    if db.startswith("HCCDB"):
+        df = hccdb.T
+        df = df[df["ptype"] == db]
+        df = df.T
+        df.drop(["ptype"], inplace = True)
+    elif db == "PANCAN":
+        df = data
+        df = df.T
+        df.drop(["ptype","sample_type_id", "sample_type", "_primary_disease"], inplace = True)
+    else:
+        df = data[data["ptype"] == db]
+        df = df.T
+        df.drop(["ptype","sample_type_id", "sample_type", "_primary_disease"], inplace = True)	
+    return df
+
 def get_gene_names(filename,col=None):
     file = pd.read_csv(filename, index_col=None, header= 0).T
     names = file[col].dropna().tolist()
