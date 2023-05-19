@@ -167,3 +167,5 @@ data/
 *.pdf 
 *.xlsx
 .DS_Store
+*.txt
+.DS_Store
