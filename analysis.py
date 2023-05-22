@@ -18,6 +18,11 @@ def get_data(data, hccdb, db):
         df = data
         df = df.T
         df.drop(["ptype","sample_type_id", "sample_type", "_primary_disease"], inplace = True)
+    elif db == "Aggregated": 
+        ls = ['STAD', 'HNSC', 'SARC', 'UCS','LUSC', 'BRCA']
+        df = data[data["ptype"].isin(ls)]
+        df = df.T
+        df.drop(["ptype","sample_type_id", "sample_type", "_primary_disease"], inplace = True)	
     else:
         df = data[data["ptype"] == db]
         df = df.T
@@ -65,11 +70,12 @@ def process_data(df, targets, x_var_names = None, y_var_names = None, pheno_filt
     df_filtered=(df_filtered-df_filtered.median())/(df_filtered.std()+1)
     data = df_filtered  
 
-    print(list(set(x_var_names).symmetric_difference(set(x_var_names))))
-    print(list(set(y_var_names).symmetric_difference(set(y_var_names))))
+    if x_var_names != None and y_var_names!=None:
+        print(list(set(x_var_names).symmetric_difference(set(x_var_names))))
+        print(list(set(y_var_names).symmetric_difference(set(y_var_names))))
 
-    x_var_names = list(set(x_var_names).intersection(set(data.columns)))
-    y_var_names = list(set(y_var_names).intersection(set(data.columns)))
+        x_var_names = list(set(x_var_names).intersection(set(data.columns)))
+        y_var_names = list(set(y_var_names).intersection(set(data.columns)))
 
     if x_var_names != None:
         x_var_gene_set = data[x_var_names]

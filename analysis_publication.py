@@ -18,6 +18,11 @@ def get_data(data, hccdb, db):
         df = data
         df = df.T
         df.drop(["ptype","sample_type_id", "sample_type", "_primary_disease"], inplace = True)
+    elif db == "Aggregated": 
+        ls = ['STAD', 'HNSC', 'SARC', 'UCS','LUSC', 'BRCA']
+        df = data[data["ptype"].isin(ls)]
+        df = df.T
+        df.drop(["ptype","sample_type_id", "sample_type", "_primary_disease"], inplace = True)	
     else:
         df = data[data["ptype"] == db]
         df = df.T
