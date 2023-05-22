@@ -108,27 +108,27 @@ def analyse(data, fig, db, ax, fn, x_label, y_label, x_target = "x_composite_sco
     t = (r-math.sqrt(n-2))/math.sqrt(1-(r**2))
     p = stats.t.sf(abs(t), df=n)*2 
     if p < 0.0001:
-        pval = "<0.0001"
+        pval = "< 0.0001"
     elif p <0.001:
-        pval = "<0.001"
+        pval = "< 0.001"
     elif p<0.01:
-        pval = "<0.01"
+        pval = "< 0.01"
     elif p<0.05:
-        pval = "<0.05"
+        pval = "< 0.05"
     else:
-        pval = "N.S."
+        pval = "= N.S."
 
     # plot the data
     # scatter plot for RRM2B against NRF2 activity
-    sns.set_style("whitegrid")
-    sns.set()
+    sns.set_style("ticks")
     sns.scatterplot(data=data, x=x_target, y=y_target, ax= ax)
     ax.plot(x, a*x+b, color="black")
     ax.set_ylabel(y_label,fontsize = 28)
-    ax.set_xlabel(x_label + " \n (r = " + str(round(r, 4)) + "," + " p = " + pval +")",fontsize = 25)
+    ax.set_xlabel(x_label + " \n (r = " + str(round(r, 4)) + "," + " p " + pval +")",fontsize = 25)
     name = db + " (n = " + str(data.shape[0]) + ")"
     ax.set_title(name, fontsize = 30)
     ax.tick_params(axis='both', which='major', labelsize=25)
+    sns.despine()
     plt.show()
 
     # save the figure 
