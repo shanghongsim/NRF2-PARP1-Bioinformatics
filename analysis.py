@@ -8,7 +8,7 @@ import seaborn as sns # for generating visualizations, better support with panda
 from scipy import stats
 from sklearn.impute import SimpleImputer
 
-def get_data(data, hccdb, db):
+def get_data(data, hccdb=None, db='PANCAN'):
     if db.startswith("HCCDB"):
         df = hccdb.T
         df = df[df["ptype"] == db]
@@ -79,7 +79,7 @@ def process_data(df, targets, x_var_names = None, y_var_names = None, pheno_filt
 
     if x_var_names != None:
         x_var_gene_set = data[x_var_names]
-        x_var_gene_set["x_composite_score"] = x_var_gene_set.mean(axis = 1)
+        x_var_gene_set.loc[:,"x_composite_score"] = x_var_gene_set.mean(axis = 1)
         data = pd.concat([data, x_var_gene_set[["x_composite_score"]]], axis = 1) 
         if outlier_corrected == True:
             iqr = data["x_composite_score"].describe()
@@ -88,13 +88,13 @@ def process_data(df, targets, x_var_names = None, y_var_names = None, pheno_filt
     if y_var_names != None:
         # take only nrf2 target genes
         y_var_gene_set = data[y_var_names]
-        y_var_gene_set["y_composite_score"]= y_var_gene_set.mean(axis = 1)
+        y_var_gene_set.loc[:,"y_composite_score"]= y_var_gene_set.mean(axis = 1)
         data = pd.concat([data, y_var_gene_set[["y_composite_score"] ]], axis = 1) # patients x genes 
     
     return data
 
 
-def analyse(data, fig, db, ax, fn, x_label, y_label, x_target = "x_composite_score", y_target = "y_composite_score"):
+def analyse(data, fig, db, ax, fn, x_label, y_label, x_target = "x_composite_score", y_target = "y_composite_score", dataset_screen = False):
     
     #find line of best fit
     y, x = data[y_target].to_numpy(), data[x_target].to_numpy()
@@ -132,7 +132,10 @@ def analyse(data, fig, db, ax, fn, x_label, y_label, x_target = "x_composite_sco
     ax.plot(x, a*x+b, color="black")
     ax.set_ylabel(y_label,fontsize = 28)
     ax.set_xlabel(x_label + " \n (r = " + str(round(r, 4)) + "," + " p = " + pval +")",fontsize = 25)
-    name = db + " (n = " + str(data.shape[0]) + ")"
+    if dataset_screen == True:
+        name = db + " (n = " + str(data.shape[0]) + ")"
+    else:
+        name = db
     ax.set_title(name, fontsize = 30)
     ax.tick_params(axis='both', which='major', labelsize=25)
     plt.show()
@@ -179,3 +182,18 @@ def get_hccdb_pheno(n2):
     pheno_filtered = pheno.dropna()
     return pheno_filtered
 
+def impute_nan(df):
+    
+    # df is inputted as gene x patient 
+    print("imputing data")
+    print("transpose")
+    df = df.T # patients x genes
+
+    print("impute")
+    imp_mean = SimpleImputer(missing_values=np.nan, strategy='mean')
+    output = imp_mean.fit_transform(df)
+    df = pd.DataFrame(output, columns = df.columns, index = df.index)
+    
+    df = df.astype(np.float64)
+    print("done imputing")
+    return df
