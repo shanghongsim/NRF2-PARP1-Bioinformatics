@@ -8,6 +8,23 @@ import seaborn as sns # for generating visualizations, better support with panda
 from scipy import stats
 from sklearn.impute import SimpleImputer
 
+def get_gene_sets():
+    df = pd.read_csv("./data/oxstress genes.csv", index_col=None, header= 0)
+    return df
+
+def get_xy_set(gene_set, xvar=None,yvar=None):
+    if xvar != "RRM2B":
+        x_set = gene_set[xvar].dropna().tolist()
+    else:
+        x_set = ["RRM2B"]
+
+    if yvar != "G6PD":
+        y_set = gene_set[yvar].dropna().tolist()
+    else:
+        y_set = ["G6PD"]
+    targets = list(set(x_set + y_set))
+    return x_set, y_set, targets
+
 def get_data(data, hccdb=None, db='PANCAN'):
     if db.startswith("HCCDB"):
         df = hccdb.T
@@ -28,6 +45,116 @@ def get_data(data, hccdb=None, db='PANCAN'):
         df = df.T
         df.drop(["ptype","sample_type_id", "sample_type", "_primary_disease"], inplace = True)	
     return df
+
+# returns 60 x 40 figure
+def get_database_fig(title, x, y):
+    fig, axs = plt.subplots(6, 8, figsize=(60, 40), sharey=True)
+    plt.subplots_adjust(hspace=0.6)
+    fig.suptitle(title,fontsize = 40)
+    return fig, axs
+    
+
+def get_raw_data():
+
+    # script to consolidate all HCCDB data into one dataframe
+    hccdb_names = ["1", "3", "4",  "8", "9", "11", "12", "13", "14", "16", "17", "18"]
+    hccdb = pd.DataFrame()
+
+    for i in range(len(hccdb_names)):
+        n1, n2 = construct_hccdb_filename(hccdb_names[i])
+        hccdb_temp = get_hccdb_data(n1)
+        hccdb_temp = hccdb_temp.loc[~hccdb_temp.index.duplicated(),:].copy()
+        hccdb_temp.loc["ptype",:] = "HCCDB-" + hccdb_names[i]
+        hccdb = pd.concat([hccdb, hccdb_temp], axis = 1) # patients x genes
+
+    # load pancan data
+    tcga = pd.read_csv("./data/EB++AdjustPANCAN_IlluminaHiSeq_RNASeqV2.geneExp (1).xena", index_col = 0, sep = "\t") # gene x patient
+    pheno = pd.read_csv("./data/TCGA_phenotype_denseDataOnlyDownload (1).tsv", index_col = 0, sep = "\t") # patient x phenotype
+
+    # attach cancer type to each patient
+    data = tcga.T
+    data = pd.concat([data, pheno], axis = 1, join = "inner") # patients x genes
+        
+    print(data.shape)
+    print(tcga.T.shape)
+
+    # attach abbeviations for each cancer type
+    ls = data["_primary_disease"].unique().tolist()
+
+    conditions = [
+        data['_primary_disease'] == 'adrenocortical cancer',
+        data['_primary_disease'] == 'bladder urothelial carcinoma',
+        data['_primary_disease'] == 'breast invasive carcinoma',
+        data['_primary_disease'] == 'cervical & endocervical cancer',
+        data['_primary_disease'] == 'cholangiocarcinoma', 
+        data['_primary_disease'] == 'colon adenocarcinoma',
+        data['_primary_disease'] == 'diffuse large B-cell lymphoma',
+        data['_primary_disease'] == 'esophageal carcinoma',
+        data['_primary_disease'] == 'glioblastoma multiforme',
+        data['_primary_disease'] == 'head & neck squamous cell carcinoma',
+        data['_primary_disease'] == 'kidney chromophobe',
+        data['_primary_disease'] == 'kidney clear cell carcinoma',
+        data['_primary_disease'] == 'kidney papillary cell carcinoma',
+        data['_primary_disease'] == 'acute myeloid leukemia',
+        data['_primary_disease'] == 'brain lower grade glioma',
+        data['_primary_disease'] == 'liver hepatocellular carcinoma',
+        data['_primary_disease'] == 'lung adenocarcinoma',
+        data['_primary_disease'] == 'lung squamous cell carcinoma',
+        data['_primary_disease'] == 'mesothelioma',
+        data['_primary_disease'] == 'ovarian serous cystadenocarcinoma',
+        data['_primary_disease'] == 'pancreatic adenocarcinoma',
+        data['_primary_disease'] == 'pheochromocytoma & paraganglioma',
+        data['_primary_disease'] == 'prostate adenocarcinoma',
+        data['_primary_disease'] == 'rectum adenocarcinoma',
+        data['_primary_disease'] == 'sarcoma',
+        data['_primary_disease'] == 'skin cutaneous melanoma',
+        data['_primary_disease'] == 'stomach adenocarcinoma',
+        data['_primary_disease'] == 'testicular germ cell tumor',
+        data['_primary_disease'] == 'thyroid carcinoma',
+        data['_primary_disease'] == 'thymoma',
+        data['_primary_disease'] == 'uterine corpus endometrioid carcinoma',
+        data['_primary_disease'] == 'uterine carcinosarcoma',
+        data['_primary_disease'] == 'uveal melanoma'    
+    ]
+
+    choices = ["ACC",
+            "BLCA",
+            "BRCA",
+            "CESC",
+            "CHOL",
+            "COAD",
+            "DBLC",
+            "ESCA",
+            "GBM",
+            "HNSC",
+            "KICH",
+            "KIRC",
+            "KIRP",
+            "LAML",
+            "LGG",
+            "LIHC",
+            "LUAD",
+            "LUSC",
+            "MESO",
+            "OV",
+            "PAAD",
+            "PCPG",
+            "PRAD",
+            "READ",
+            "SARC",
+            "SKCM",
+            "STAD",
+            "TGCT",
+            "THCA",
+            "THYM",
+            "UCEC",
+            "UCS",
+            "UVM"
+            ]
+
+    data["ptype"] = np.select(conditions, choices, default = "null")
+    
+    return data, hccdb
 
 def get_gene_names(filename,col=None):
     file = pd.read_csv(filename, index_col=None, header= 0).T
@@ -51,9 +178,9 @@ def construct_hccdb_filename(n):
     return n1,n2
 
 def process_data(df, targets, x_var_names = None, y_var_names = None, pheno_filtered=None, outlier_corrected = False):
-
     # df is inputted as gene x patient 
     df = df.T # patients x genes
+    print("transposed")
 
     # subset to get relevant genes
     df_filtered = df[targets]
@@ -62,6 +189,16 @@ def process_data(df, targets, x_var_names = None, y_var_names = None, pheno_filt
     imp_mean = SimpleImputer(missing_values=np.nan, strategy='mean')
     output = imp_mean.fit_transform(df_filtered)
     df_filtered = pd.DataFrame(output, columns = imp_mean.get_feature_names_out().tolist(), index = df_filtered.index)
+    with pd.option_context('display.max_rows', 5,
+                       'display.max_columns', None,
+                       'display.precision', 3,
+                       ): print(df_filtered)
+
+    # handle dropped columns
+    targets = list(set(targets).intersection(set(df_filtered.columns))) # select only targets that are present in the data
+    # x_var_names = list(set(x_var_names).intersection(set(df_filtered.columns))) # select only targets that are present in the data
+    # y_var_names = list(set(y_var_names).intersection(set(df_filtered.columns))) # select only targets that are present in the data
+    print(targets, x_var_names, y_var_names)
 
     # scale numerical data
     df_filtered = df_filtered.astype(np.float64)
@@ -70,15 +207,16 @@ def process_data(df, targets, x_var_names = None, y_var_names = None, pheno_filt
     df_filtered=(df_filtered-df_filtered.median())/(df_filtered.std()+1)
     data = df_filtered  
 
-    if x_var_names != None and y_var_names!=None:
-        print(list(set(x_var_names).symmetric_difference(set(x_var_names))))
-        print(list(set(y_var_names).symmetric_difference(set(y_var_names))))
+    # if x_var_names != None and y_var_names!=None:
+    #     # print(list(set(x_var_names).symmetric_difference(set(x_var_names))))
+    #     # print(list(set(y_var_names).symmetric_difference(set(y_var_names))))
 
-        x_var_names = list(set(x_var_names).intersection(set(data.columns)))
-        y_var_names = list(set(y_var_names).intersection(set(data.columns)))
+    #     x_var_names = list(set(x_var_names).intersection(set(data.columns)))
+    #     y_var_names = list(set(y_var_names).intersection(set(data.columns)))
+    print(x_var_names, y_var_names)
 
     if x_var_names != None:
-        x_var_gene_set = data[x_var_names]
+        x_var_gene_set = data.loc[:,x_var_names]
         x_var_gene_set.loc[:,"x_composite_score"] = x_var_gene_set.mean(axis = 1)
         data = pd.concat([data, x_var_gene_set[["x_composite_score"]]], axis = 1) 
         if outlier_corrected == True:
@@ -87,7 +225,7 @@ def process_data(df, targets, x_var_names = None, y_var_names = None, pheno_filt
 
     if y_var_names != None:
         # take only nrf2 target genes
-        y_var_gene_set = data[y_var_names]
+        y_var_gene_set = data.loc[:,y_var_names]
         y_var_gene_set.loc[:,"y_composite_score"]= y_var_gene_set.mean(axis = 1)
         data = pd.concat([data, y_var_gene_set[["y_composite_score"] ]], axis = 1) # patients x genes 
     
@@ -114,30 +252,31 @@ def analyse(data, fig, db, ax, fn, x_label, y_label, x_target = "x_composite_sco
     t = (r-math.sqrt(n-2))/math.sqrt(1-(r**2))
     p = stats.t.sf(abs(t), df=n)*2 
     if p < 0.0001:
-        pval = "<0.0001"
+        pval = "< 0.0001"
     elif p <0.001:
-        pval = "<0.001"
+        pval = "< 0.001"
     elif p<0.01:
-        pval = "<0.01"
+        pval = "< 0.01"
     elif p<0.05:
-        pval = "<0.05"
+        pval = "< 0.05"
     else:
-        pval = "N.S."
+        pval = "= N.S."
 
     # plot the data
     # scatter plot for RRM2B against NRF2 activity
-    sns.set_style("whitegrid")
-    sns.set()
+    sns.set_style("ticks")
     sns.scatterplot(data=data, x=x_target, y=y_target, ax= ax)
     ax.plot(x, a*x+b, color="black")
     ax.set_ylabel(y_label,fontsize = 28)
-    ax.set_xlabel(x_label + " \n (r = " + str(round(r, 4)) + "," + " p = " + pval +")",fontsize = 25)
+    ax.set_xlabel(x_label + " \n (r = " + str(round(r, 4)) + "," + " p " + pval +")",fontsize = 25)
+    name = db + " (n = " + str(data.shape[0]) + ")"
     if dataset_screen == True:
         name = db + " (n = " + str(data.shape[0]) + ")"
     else:
         name = db
     ax.set_title(name, fontsize = 30)
     ax.tick_params(axis='both', which='major', labelsize=25)
+    sns.despine()
     plt.show()
 
     # save the figure 
@@ -195,5 +334,19 @@ def impute_nan(df):
     df = pd.DataFrame(output, columns = df.columns, index = df.index)
     
     df = df.astype(np.float64)
+    print("done imputing")
+    return df
+
+def impute_nan_general(df):
+    
+    # df is inputted as gene x patient 
+    print("imputing data")
+    print("transpose")
+
+    print("impute")
+    imp_mean = SimpleImputer(missing_values=np.nan, strategy='mean')
+    output = imp_mean.fit_transform(df)
+    df = pd.DataFrame(output, columns = df.columns, index = df.index)
+    
     print("done imputing")
     return df

@@ -8,7 +8,11 @@ import seaborn as sns # for generating visualizations, better support with panda
 from scipy import stats
 from sklearn.impute import SimpleImputer
 
-def get_data(data, hccdb, db):
+def get_gene_sets():
+    df = pd.read_csv("./data/oxstress genes.csv", index_col=None, header= 0)
+    return df
+
+def get_data(data, hccdb=None, db='PANCAN'):
     if db.startswith("HCCDB"):
         df = hccdb.T
         df = df[df["ptype"] == db]
@@ -28,6 +32,108 @@ def get_data(data, hccdb, db):
         df = df.T
         df.drop(["ptype","sample_type_id", "sample_type", "_primary_disease"], inplace = True)	
     return df
+
+def get_raw_data():
+
+    # script to consolidate all HCCDB data into one dataframe
+    hccdb_names = ["1", "3", "4",  "8", "9", "11", "12", "13", "14", "16", "17", "18"]
+    hccdb = pd.DataFrame()
+
+    for i in range(len(hccdb_names)):
+        n1, n2 = construct_hccdb_filename(hccdb_names[i])
+        hccdb_temp = get_hccdb_data(n1)
+        hccdb_temp = hccdb_temp.loc[~hccdb_temp.index.duplicated(),:].copy()
+        hccdb_temp.loc["ptype",:] = "HCCDB-" + hccdb_names[i]
+        hccdb = pd.concat([hccdb, hccdb_temp], axis = 1) # patients x genes
+
+    # load pancan data
+    tcga = pd.read_csv("./data/EB++AdjustPANCAN_IlluminaHiSeq_RNASeqV2.geneExp (1).xena", index_col = 0, sep = "\t") # gene x patient
+    pheno = pd.read_csv("./data/TCGA_phenotype_denseDataOnlyDownload (1).tsv", index_col = 0, sep = "\t") # patient x phenotype
+
+    # attach cancer type to each patient
+    data = tcga.T
+    data = pd.concat([data, pheno], axis = 1, join = "inner") # patients x genes
+        
+    print(data.shape)
+    print(tcga.T.shape)
+
+    # attach abbeviations for each cancer type
+    ls = data["_primary_disease"].unique().tolist()
+
+    conditions = [
+        data['_primary_disease'] == 'adrenocortical cancer',
+        data['_primary_disease'] == 'bladder urothelial carcinoma',
+        data['_primary_disease'] == 'breast invasive carcinoma',
+        data['_primary_disease'] == 'cervical & endocervical cancer',
+        data['_primary_disease'] == 'cholangiocarcinoma', 
+        data['_primary_disease'] == 'colon adenocarcinoma',
+        data['_primary_disease'] == 'diffuse large B-cell lymphoma',
+        data['_primary_disease'] == 'esophageal carcinoma',
+        data['_primary_disease'] == 'glioblastoma multiforme',
+        data['_primary_disease'] == 'head & neck squamous cell carcinoma',
+        data['_primary_disease'] == 'kidney chromophobe',
+        data['_primary_disease'] == 'kidney clear cell carcinoma',
+        data['_primary_disease'] == 'kidney papillary cell carcinoma',
+        data['_primary_disease'] == 'acute myeloid leukemia',
+        data['_primary_disease'] == 'brain lower grade glioma',
+        data['_primary_disease'] == 'liver hepatocellular carcinoma',
+        data['_primary_disease'] == 'lung adenocarcinoma',
+        data['_primary_disease'] == 'lung squamous cell carcinoma',
+        data['_primary_disease'] == 'mesothelioma',
+        data['_primary_disease'] == 'ovarian serous cystadenocarcinoma',
+        data['_primary_disease'] == 'pancreatic adenocarcinoma',
+        data['_primary_disease'] == 'pheochromocytoma & paraganglioma',
+        data['_primary_disease'] == 'prostate adenocarcinoma',
+        data['_primary_disease'] == 'rectum adenocarcinoma',
+        data['_primary_disease'] == 'sarcoma',
+        data['_primary_disease'] == 'skin cutaneous melanoma',
+        data['_primary_disease'] == 'stomach adenocarcinoma',
+        data['_primary_disease'] == 'testicular germ cell tumor',
+        data['_primary_disease'] == 'thyroid carcinoma',
+        data['_primary_disease'] == 'thymoma',
+        data['_primary_disease'] == 'uterine corpus endometrioid carcinoma',
+        data['_primary_disease'] == 'uterine carcinosarcoma',
+        data['_primary_disease'] == 'uveal melanoma'    
+    ]
+
+    choices = ["ACC",
+            "BLCA",
+            "BRCA",
+            "CESC",
+            "CHOL",
+            "COAD",
+            "DBLC",
+            "ESCA",
+            "GBM",
+            "HNSC",
+            "KICH",
+            "KIRC",
+            "KIRP",
+            "LAML",
+            "LGG",
+            "LIHC",
+            "LUAD",
+            "LUSC",
+            "MESO",
+            "OV",
+            "PAAD",
+            "PCPG",
+            "PRAD",
+            "READ",
+            "SARC",
+            "SKCM",
+            "STAD",
+            "TGCT",
+            "THCA",
+            "THYM",
+            "UCEC",
+            "UCS",
+            "UVM"
+            ]
+
+    data["ptype"] = np.select(conditions, choices, default = "null")
+    
+    return data, hccdb
 
 def get_gene_names(filename,col=None):
     file = pd.read_csv(filename, index_col=None, header= 0).T
@@ -93,7 +199,7 @@ def process_data(df, targets, x_var_names = None, y_var_names = None, pheno_filt
     return data
 
 
-def analyse(data, fig, db, ax, fn, x_label, y_label, x_target = "x_composite_score", y_target = "y_composite_score"):
+def analyse(data, fig, db, ax, fn, x_label, y_label, x_target = "x_composite_score", y_target = "y_composite_score", dataset_screen = False):
     
     #find line of best fit
     y, x = data[y_target].to_numpy(), data[x_target].to_numpy()
@@ -131,6 +237,10 @@ def analyse(data, fig, db, ax, fn, x_label, y_label, x_target = "x_composite_sco
     ax.set_ylabel(y_label,fontsize = 28)
     ax.set_xlabel(x_label + " \n (r = " + str(round(r, 4)) + "," + " p " + pval +")",fontsize = 25)
     name = db + " (n = " + str(data.shape[0]) + ")"
+    if dataset_screen == True:
+        name = db + " (n = " + str(data.shape[0]) + ")"
+    else:
+        name = db
     ax.set_title(name, fontsize = 30)
     ax.tick_params(axis='both', which='major', labelsize=25)
     sns.despine()
