@@ -8,6 +8,15 @@ import seaborn as sns # for generating visualizations, better support with panda
 from scipy import stats
 from sklearn.impute import SimpleImputer
 
+def construct_hccdb_filename(n):
+    n1 = "./data/HCCDB/HCCDB" + n + "_mRNA_level3.txt"
+    n2 = "./data/HCCDB/HCCDB" + n  + ".sample.txt"
+    return n1,n2
+
+def get_hccdb_data(n1):
+    df = pd.read_csv(n1, index_col = 1, sep = "\t").drop(["Entrez_ID"], axis=1) # gene x patient
+    return df
+
 def get_gene_sets():
     df = pd.read_csv("./data/oxstress genes.csv", index_col=None, header= 0)
     return df
@@ -53,7 +62,6 @@ def get_database_fig(title, x, y):
     fig.suptitle(title,fontsize = 40)
     return fig, axs
     
-
 def get_raw_data():
 
     # script to consolidate all HCCDB data into one dataframe
@@ -161,21 +169,6 @@ def get_gene_names(filename,col=None):
     names = file[col].dropna().tolist()
     return names
 
-def construct_filename(c, db):
-    if db =="xena":
-        n1 = "./data/" + "TCGA." + c + ".sampleMap_HiSeqV2"
-        n2 = "./data/" + "TCGA." + c + ".sampleMap_"+ c +"_clinicalMatrix"
-    elif db == "cbio":
-        n1 = "./data/" + c+"_data_mrna_seq_v2_rsem.txt"
-        n2 = "./data/" + c + "_data_clinical_sample.txt"
-    else:
-        print("db must be either xena or cbio")
-    return n1,n2
-
-def construct_hccdb_filename(n):
-    n1 = "./data/HCCDB/HCCDB" + n + "_mRNA_level3.txt"
-    n2 = "./data/HCCDB/HCCDB" + n  + ".sample.txt"
-    return n1,n2
 
 def process_data(df, targets, x_var_names = None, y_var_names = None, pheno_filtered=None, outlier_corrected = False):
     # df is inputted as gene x patient 
@@ -194,12 +187,6 @@ def process_data(df, targets, x_var_names = None, y_var_names = None, pheno_filt
                        'display.precision', 3,
                        ): print(df_filtered)
 
-    # handle dropped columns
-    targets = list(set(targets).intersection(set(df_filtered.columns))) # select only targets that are present in the data
-    # x_var_names = list(set(x_var_names).intersection(set(df_filtered.columns))) # select only targets that are present in the data
-    # y_var_names = list(set(y_var_names).intersection(set(df_filtered.columns))) # select only targets that are present in the data
-    print(targets, x_var_names, y_var_names)
-
     # scale numerical data
     df_filtered = df_filtered.astype(np.float64)
 
@@ -207,13 +194,13 @@ def process_data(df, targets, x_var_names = None, y_var_names = None, pheno_filt
     df_filtered=(df_filtered-df_filtered.median())/(df_filtered.std()+1)
     data = df_filtered  
 
-    # if x_var_names != None and y_var_names!=None:
-    #     # print(list(set(x_var_names).symmetric_difference(set(x_var_names))))
-    #     # print(list(set(y_var_names).symmetric_difference(set(y_var_names))))
-
-    #     x_var_names = list(set(x_var_names).intersection(set(data.columns)))
-    #     y_var_names = list(set(y_var_names).intersection(set(data.columns)))
-    print(x_var_names, y_var_names)
+    # handle dropped columns due to imputation
+    if x_var_names != None and len(x_var_names) != 1:
+        x_var_names = list(set(x_var_names).intersection(set(data.columns)))
+    if  y_var_names!=None and len(y_var_names) != 1: 
+        y_var_names = list(set(y_var_names).intersection(set(data.columns)))
+    
+    # print(x_var_names, y_var_names)
 
     if x_var_names != None:
         x_var_gene_set = data.loc[:,x_var_names]
@@ -282,44 +269,6 @@ def analyse(data, fig, db, ax, fn, x_label, y_label, x_target = "x_composite_sco
     # save the figure 
     fig.savefig(fn)
     return r, p
-
-def get_targets_present(data, targets):
-    idx = data.index.to_list()
-    # print(idx)
-    # print(targets)
-    targets_present = list(set(idx).intersection(set(targets)))
-    # print(targets_present)
-    return targets_present
-
-def get_xena_data(n1):
-    df = pd.read_csv(n1, index_col = 0, sep = "\t") # gene x patient
-    return df
-
-def get_cbio_data(n1):
-    df = pd.read_csv(n1, index_col = 0, sep = "\t").drop(["Entrez_Gene_Id"], axis=1) # gene x patient
-    return df
-
-def get_hccdb_data(n1):
-    df = pd.read_csv(n1, index_col = 1, sep = "\t").drop(["Entrez_ID"], axis=1) # gene x patient
-    return df
-
-def get_xena_pheno(n2):
-    pheno = pd.read_csv(n2, index_col=0, sep = "\t")
-    pheno = pheno[["sample_type"]]
-    pheno_filtered = pheno.dropna()
-    return pheno_filtered
-
-def get_cbio_pheno(n2):
-    pheno = pd.read_csv(n2, index_col=1,header = 4, sep = "\t")
-    pheno = pheno[["SAMPLE_TYPE"]]
-    pheno_filtered = pheno.dropna()
-    return pheno_filtered
-
-def get_hccdb_pheno(n2):
-    pheno = pd.read_csv(n2, index_col=0, sep = "\t").T
-    pheno = pheno[["TYPE"]]
-    pheno_filtered = pheno.dropna()
-    return pheno_filtered
 
 def impute_nan(df):
     

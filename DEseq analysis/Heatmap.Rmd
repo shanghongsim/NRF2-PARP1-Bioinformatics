@@ -21,7 +21,7 @@ library("grid")
 ```
 
 ```{r}
-corrData <- read.csv('/Users/shanghongsim/Documents/GitHub/HU-ATRi-Code-Repository/r values AOS-genes-screen.csv', header = TRUE)
+corrData <- read.csv('/Users/shanghongsim/Documents/GitHub/HU-ATRi-Code-Repository/r values NRF2 screen-imputed.csv', header = TRUE)
 
 #set specific column as row names
 rownames(corrData) <- corrData$database
@@ -55,7 +55,7 @@ Heatmap(corrMatImputed, cluster_rows = FALSE, column_km = 2)
 ```
 
 ```{r}
-corrData <- read.csv('/Users/shanghongsim/Documents/GitHub/HU-ATRi-Code-Repository/r values signature screen.csv', header = TRUE)
+corrData <- read.csv('/Users/shanghongsim/Documents/GitHub/HU-ATRi-Code-Repository/results/antioxidant network screen/r values signature screen.csv', header = TRUE)
 
 #set specific column as row names
 rownames(corrData) <- corrData$database
@@ -65,10 +65,9 @@ corrData$database <- NULL
 
 corrMat <- data.matrix(corrData)
 
-ht1 = Heatmap(corrMat, cluster_rows = FALSE, name = "Pearson correlation coefficient", 
+Heatmap(corrMat, cluster_rows = FALSE, name = "Pearson correlation \n coefficient", 
         column_title = "Correlation of antioxidant transcription factor activity \n with RRM2B expression", 
-        column_title_side = "bottom",
-        col = col_fun)
+        column_title_side = "bottom")
 ```
 
 ```{r}
@@ -78,8 +77,34 @@ col_fun(seq(-3, 3))
 ```
 
 ```{r}
-o1 = column_order(ht1)
-o1
+corrData <- read.csv('/Users/shanghongsim/Documents/GitHub/HU-ATRi-Code-Repository/results/nrf2 heatmap/r values NRF2 screen-imputed.csv', header = TRUE)
+
+#set specific column as row names
+rownames(corrData) <- corrData$database
+
+#remove original column from data frame
+corrData$database <- NULL
+
+corrMat <- data.matrix(corrData)
+
+Heatmap(corrMat, cluster_rows = FALSE, column_title = "NRF2 signature (24 genes)", 
+    column_title_side = "bottom", name = "r value")
+```
+
+```{r}
+corrData <- read.csv('/Users/shanghongsim/Documents/GitHub/HU-ATRi-Code-Repository/r values signature screen with bach.csv', header = TRUE)
+
+#set specific column as row names
+rownames(corrData) <- corrData$database
+
+#remove original column from data frame
+corrData$database <- NULL
+
+corrMat <- data.matrix(corrData)
+
+Heatmap(corrMat, cluster_rows = FALSE, name = "Pearson correlation \n coefficient", 
+        column_title = "Correlation of antioxidant transcription factor activity \n with RRM2B expression (with BACH genes)", 
+        column_title_side = "bottom")
 ```
 
 Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
