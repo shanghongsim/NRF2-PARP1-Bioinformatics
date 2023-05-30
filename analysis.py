@@ -22,12 +22,12 @@ def get_gene_sets():
     return df
 
 def get_xy_set(gene_set, xvar=None,yvar=None):
-    if xvar != "RRM2B":
+    if xvar != "RRM2B"and xvar != None:
         x_set = gene_set[xvar].dropna().tolist()
     else:
         x_set = ["RRM2B"]
 
-    if yvar != "G6PD":
+    if yvar != "G6PD" and yvar != None:
         y_set = gene_set[yvar].dropna().tolist()
     else:
         y_set = ["G6PD"]
@@ -169,8 +169,8 @@ def get_gene_names(filename,col=None):
     names = file[col].dropna().tolist()
     return names
 
-
 def process_data(df, targets, x_var_names = None, y_var_names = None, pheno_filtered=None, outlier_corrected = False):
+    print("entering process data")
     # df is inputted as gene x patient 
     df = df.T # patients x genes
     print("transposed")

@@ -15,9 +15,20 @@ BiocManager::install("ComplexHeatmap")
 ```
 
 ```{r}
+install.packages("dendsort")
+```
+
+```{r}
 library("BiocManager")
 library("ComplexHeatmap")
 library("grid")
+library("dendsort")
+```
+
+```{r}
+library(circlize)
+col_fun = colorRamp2(c(-0.5, 0, 0.5), c("red", "white", "blue"))
+col_fun(seq(-3, 3))
 ```
 
 ```{r}
@@ -33,25 +44,39 @@ corrMat <- data.matrix(corrData)
 ```
 
 ```{r}
-corrDataImputed <- read.csv('/Users/shanghongsim/Documents/GitHub/HU-ATRi-Code-Repository/r values AOS-genes-screen-imputed.csv', header = TRUE)
-
-#set specific column as row names
-rownames(corrDataImputed) <- corrDataImputed$database
-
-#remove original column from data frame
-corrDataImputed$database <- NULL
-
-corrMatImputed <- data.matrix(corrDataImputed)
-```
-
-```{r}
 Heatmap(corrMat, cluster_rows = FALSE, column_title = "Antioxidant gene signature (41 genes)", 
     column_title_side = "bottom")
 ```
 
 ```{r}
+corrData <- read.csv('/Users/shanghongsim/Documents/GitHub/HU-ATRi-Code-Repository/results/AOS screen/r values AOS-genes-screen-imputed.csv', header = TRUE)
 
-Heatmap(corrMatImputed, cluster_rows = FALSE, column_km = 2)
+#set specific column as row names
+rownames(corrData) <- corrData$database
+
+#remove original column from data frame
+corrData$database <- NULL
+corrData$AOS <- NULL
+
+corrMat <- data.matrix(corrData)
+col_dend <- dendsort(hclust(dist(t(corrMat))))
+Heatmap(corrMat, cluster_rows = FALSE, column_title = "Antioxidant gene signature (41 genes)", 
+    column_title_side = "bottom", cluster_columns = col_dend, col = col_fun, name = "Pearson correlation \n coefficient")
+```
+
+```{r}
+corrData <- read.csv('/Users/shanghongsim/Documents/GitHub/HU-ATRi-Code-Repository/results/AOS screen/r values AOS-genes-screen-imputed.csv', header = TRUE)
+
+#set specific column as row names
+rownames(corrData) <- corrData$database
+
+#remove original column from data frame
+corrData$database <- NULL
+
+corrMat <- data.matrix(corrData)
+col_dend <- dendsort(hclust(dist(t(corrMat))))
+Heatmap(corrMat, cluster_rows = FALSE, column_title = "Antioxidant gene signature (41 genes)", 
+    column_title_side = "bottom", cluster_columns = col_dend, col = col_fun, name = "Pearson correlation \n coefficient")
 ```
 
 ```{r}
@@ -62,18 +87,14 @@ rownames(corrData) <- corrData$database
 
 #remove original column from data frame
 corrData$database <- NULL
+corrData$AOS <- NULL
 
 corrMat <- data.matrix(corrData)
 
-Heatmap(corrMat, cluster_rows = FALSE, name = "Pearson correlation \n coefficient", 
-        column_title = "Correlation of antioxidant transcription factor activity \n with RRM2B expression", 
-        column_title_side = "bottom")
-```
+col_dend <- dendsort(hclust(dist(t(corrMat))))
 
-```{r}
-library(circlize)
-col_fun = colorRamp2(c(-0.5, 0, 0.5), c("red", "white", "blue"))
-col_fun(seq(-3, 3))
+Heatmap(corrMat, cluster_rows = FALSE, name = "Pearson correlation \n coefficient",cluster_columns = col_dend, col = col_fun,column_title = "Correlation of antioxidant transcription factor activity \n with RRM2B expression", 
+        column_title_side = "bottom")
 ```
 
 ```{r}
@@ -87,8 +108,10 @@ corrData$database <- NULL
 
 corrMat <- data.matrix(corrData)
 
+col_dend <- dendsort(hclust(dist(t(corrMat))))
+
 Heatmap(corrMat, cluster_rows = FALSE, column_title = "NRF2 signature (24 genes)", 
-    column_title_side = "bottom", name = "r value")
+    column_title_side = "bottom", name = "Pearson correlation \n coefficient",cluster_columns = col_dend, col = col_fun)
 ```
 
 ```{r}
@@ -102,9 +125,25 @@ corrData$database <- NULL
 
 corrMat <- data.matrix(corrData)
 
+
 Heatmap(corrMat, cluster_rows = FALSE, name = "Pearson correlation \n coefficient", 
         column_title = "Correlation of antioxidant transcription factor activity \n with RRM2B expression (with BACH genes)", 
         column_title_side = "bottom")
+```
+
+```{r}
+corrData <- read.csv('//Users/shanghongsim/Documents/GitHub/HU-ATRi-Code-Repository/results/GSTA4 GSTA1 GSTP1 comparison/r values cancer screen (3 GST) transposed.csv', header = TRUE)
+
+#set specific column as row names
+rownames(corrData) <- corrData$database
+
+#remove original column from data frame
+corrData$database <- NULL
+
+corrMat <- data.matrix(corrData)
+col_dend <- dendsort(hclust(dist(t(corrMat))))
+
+Heatmap(corrMat, cluster_rows = FALSE, name = "Pearson correlation \n coefficient",cluster_columns = col_dend, col = col_fun)
 ```
 
 Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
