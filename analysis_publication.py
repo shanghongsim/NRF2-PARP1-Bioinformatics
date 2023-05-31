@@ -8,11 +8,11 @@ import seaborn as sns # for generating visualizations, better support with panda
 from scipy import stats
 from sklearn.impute import SimpleImputer
 
-def get_gene_sets():
+def get_gene_signature_file():
     df = pd.read_csv("./data/oxstress genes.csv", index_col=None, header= 0)
     return df
 
-def get_data(data, hccdb=None, db='PANCAN'):
+def extract_rows_by_type(data, hccdb=None, db='PANCAN'):
     if db.startswith("HCCDB"):
         df = hccdb.T
         df = df[df["ptype"] == db]
