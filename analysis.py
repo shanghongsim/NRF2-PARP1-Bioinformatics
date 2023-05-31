@@ -219,17 +219,17 @@ def process_data(raw_data, targets, x_var_names, y_var_names, pheno_filtered=Non
 
 # function to  calculate r and p value, and plot the data
 def analyse(data, fig, db, ax, fn, x_label, y_label, x_target = "x_composite_score", y_target = "y_composite_score", dataset_screen = False, plotter = True):
-    #find line of best fit
+    # get x and y data
     y, x = data[y_target].to_numpy(), data[x_target].to_numpy()
-    a, b = np.polyfit(x, y, 1)
 
-    # get r sq val
+    # get r value
     r = np.corrcoef(x, y)[0, 1]
 
-    #find p-value
+    # find p-value
     n = data.shape[0]
     t = (r - math.sqrt(n - 2)) / math.sqrt(1 - (r ** 2))
-    p = stats.t.sf(abs(t), df=n)*2 
+    p = stats.t.sf(abs(t), df=n-2)*2  # Survival function (also defined as 1 - cdf, but sf is sometimes more accurate).
+    # our t-test is two-sided, we need to multiply this value by 2
     
     if p < 0.0001:
         pval = "< 0.0001"
@@ -246,7 +246,8 @@ def analyse(data, fig, db, ax, fn, x_label, y_label, x_target = "x_composite_sco
     if plotter == True:
         sns.set_style("ticks")
         sns.scatterplot(data=data, x=x_target, y=y_target, ax= ax)
-
+        
+        a, b = np.polyfit(x, y, 1)
         ax.plot(x, a*x+b, color="black")
         ax.set_ylabel(y_label,fontsize = 28)
         ax.set_xlabel(x_label + " \n (r = " + str(round(r, 4)) + "," + " p " + pval +")",fontsize = 25)

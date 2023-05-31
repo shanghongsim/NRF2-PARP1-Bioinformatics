@@ -8,17 +8,6 @@ This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute
 Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*.
 
 ```{r}
-if (!require("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-
-BiocManager::install("ComplexHeatmap")
-```
-
-```{r}
-install.packages("dendsort")
-```
-
-```{r}
 library("BiocManager")
 library("ComplexHeatmap")
 library("grid")
@@ -144,6 +133,23 @@ corrMat <- data.matrix(corrData)
 col_dend <- dendsort(hclust(dist(t(corrMat))))
 
 Heatmap(corrMat, cluster_rows = FALSE, name = "Pearson correlation \n coefficient",cluster_columns = col_dend, col = col_fun)
+```
+
+```{r}
+corrData <- read.csv('/Users/shanghongsim/Documents/GitHub/HU-ATRi-Code-Repository/r values 125 GO screen.csv', header = TRUE)
+
+#set specific column as row names
+rownames(corrData) <- corrData$database
+
+#remove original column from data frame
+corrData$database <- NULL
+
+corrMat <- data.matrix(corrData)
+
+col_dend <- dendsort(hclust(dist(t(corrMat))))
+
+Heatmap(corrMat, cluster_rows = FALSE, column_title = "NRF2 signature (24 genes)", 
+    column_title_side = "bottom", name = "Pearson correlation \n coefficient",cluster_columns = col_dend, col = col_fun)
 ```
 
 Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
