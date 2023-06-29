@@ -169,3 +169,7 @@ data/
 .DS_Store
 *.txt
 .DS_Store
+*.tsv
+*.tab
+*.gz
+*.jpeg

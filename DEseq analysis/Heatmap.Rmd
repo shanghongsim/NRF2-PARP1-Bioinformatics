@@ -33,11 +33,6 @@ corrMat <- data.matrix(corrData)
 ```
 
 ```{r}
-Heatmap(corrMat, cluster_rows = FALSE, column_title = "Antioxidant gene signature (41 genes)", 
-    column_title_side = "bottom")
-```
-
-```{r}
 corrData <- read.csv('/Users/shanghongsim/Documents/GitHub/HU-ATRi-Code-Repository/results/AOS screen/r values AOS-genes-screen-imputed.csv', header = TRUE)
 
 #set specific column as row names
@@ -121,7 +116,7 @@ Heatmap(corrMat, cluster_rows = FALSE, name = "Pearson correlation \n coefficien
 ```
 
 ```{r}
-corrData <- read.csv('//Users/shanghongsim/Documents/GitHub/HU-ATRi-Code-Repository/results/GSTA4 GSTA1 GSTP1 comparison/r values cancer screen (3 GST) transposed.csv', header = TRUE)
+corrData <- read.csv('//Users/shanghongsim/Documents/GitHub/HU-ATRi-Code-Repository/results/GSTA4 GSTA1 GSTP1 comparison/r values cancer screen (GSTA4, GSTP1, GSTA1).csv', header = TRUE)
 
 #set specific column as row names
 rownames(corrData) <- corrData$database
@@ -131,8 +126,15 @@ corrData$database <- NULL
 
 corrMat <- data.matrix(corrData)
 col_dend <- dendsort(hclust(dist(t(corrMat))))
+rn <- rownames(corrMat)
+print(rn)
 
-Heatmap(corrMat, cluster_rows = FALSE, name = "Pearson correlation \n coefficient",cluster_columns = col_dend, col = col_fun)
+Heatmap(corrMat, 
+        cluster_rows = FALSE, 
+        name = "Pearson correlation \n coefficient",
+        cluster_columns = col_dend, 
+        col = col_fun)
+
 ```
 
 ```{r}
@@ -148,8 +150,377 @@ corrMat <- data.matrix(corrData)
 
 col_dend <- dendsort(hclust(dist(t(corrMat))))
 
-Heatmap(corrMat, cluster_rows = FALSE, column_title = "NRF2 signature (24 genes)", 
-    column_title_side = "bottom", name = "Pearson correlation \n coefficient",cluster_columns = col_dend, col = col_fun)
+Heatmap(corrMat, 
+        cluster_rows = FALSE, 
+        column_title = "NRF2 signature (24 genes)", 
+        column_title_side = "bottom", 
+        name = "Pearson correlation \n coefficient",
+        cluster_columns = col_dend, 
+        col = col_fun)
+
+```
+
+```{r}
+c_order <- c('HCCDB.1', 'HCCDB.3', 'HCCDB.4',  'HCCDB.8', 'HCCDB.9', 'HCCDB.11', 
+       'HCCDB.12', 'HCCDB.13', 'HCCDB.14', 'HCCDB.16', 'HCCDB.17', 'HCCDB.18',
+       'ACC', 'BLCA', 'DBLC', 'UCEC', 'SKCM', 'HNSC', 'PRAD', 'KIRP',
+       'PAAD', 'SARC', 'CESC', 'COAD', 'LUSC', 'READ', 'KIRC', 'LIHC',
+       'BRCA', 'OV', 'UCS', 'GBM', 'KICH', 'THCA', 'LGG', 'LUAD', 'MESO',
+       'PCPG', 'TGCT', 'UVM', 'THYM', 'CHOL', 'ESCA', 'STAD', 'LAML', 'PANCAN')
+r_order_41 <- c('RRM2B - AOS', 'RRM2B - NRF2 signature', 'RRM2B vs G6PD', 'RRM2B - p53 signature', 'p53 signature vs G6PD', 'NRF2 signature - p53 signature', 'AOS signature - p53 signature')
+r_order_125 <- c('RRM2B - Oxidative stress',
+                 'RRM2B - AOS', 
+                 'RRM2B - NRF2',
+                 'RRM2B - G6PD',
+                 'RRM2B - p53',
+                 'p53 - G6PD',
+                 'p53 - NRF2',
+                 'p53 - AOS')
+r_order_41 <- c('RRM2B - AOS', 
+                 'RRM2B - NRF2',
+                 'RRM2B - G6PD',
+                 'RRM2B - p53',
+                 'p53 - G6PD',
+                 'p53 - NRF2',
+                 'p53 - AOS')
+```
+
+```{r}
+corrData <- read.csv('//Users/shanghongsim/Documents/GitHub/HU-ATRi-Code-Repository/results/without outlier correction NEW/r values cancer screen (final).csv', header = TRUE)
+
+#set specific column as row names
+rownames(corrData) <- corrData$database
+
+#remove original column from data frame
+corrData$database <- NULL
+
+corrMat <- data.matrix(corrData)
+col_dend <- dendsort(hclust(dist(t(corrMat))))
+
+Heatmap(corrMat, 
+        cluster_rows = FALSE, 
+        name = "Pearson correlation \n coefficient", 
+        col = col_fun, 
+        row_order = r_order_125,
+        column_title = "without outlier correction")
+
+```
+
+```{r}
+corrData <- read.csv('//Users/shanghongsim/Documents/GitHub/HU-ATRi-Code-Repository/results/outlier corrected/r values cancer screen (final).csv', header = TRUE)
+
+#set specific column as row names
+rownames(corrData) <- corrData$database
+
+#remove original column from data frame
+corrData$database <- NULL
+
+corrMat <- data.matrix(corrData)
+col_dend <- dendsort(hclust(dist(t(corrMat))))
+
+Heatmap(corrMat, 
+        cluster_rows = FALSE, 
+        name = "Pearson correlation \n coefficient",
+        col = col_fun, 
+        column_order = c_order,
+        row_order = r_order_125,
+        column_title = "WITH outlier correction")
+```
+
+```{r}
+corrData <- read.csv('//Users/shanghongsim/Documents/GitHub/HU-ATRi-Code-Repository/r values rrm2b.csv', header = TRUE)
+
+#set specific column as row names
+rownames(corrData) <- corrData$database
+
+#remove original column from data frame
+corrData$database <- NULL
+
+corrMat <- data.matrix(corrData)
+#col_dend <- dendsort(hclust(dist(t(corrMat))))
+
+Heatmap(corrMat, 
+        cluster_rows = FALSE, 
+        cluster_columns = FALSE,
+        name = "Pearson correlation \n coefficient",
+        col = col_fun)
+```
+
+```{r}
+corrData <- read.csv('//Users/shanghongsim/Documents/GitHub/HU-ATRi-Code-Repository/r values p53.csv', header = TRUE)
+
+#set specific column as row names
+rownames(corrData) <- corrData$database
+
+#remove original column from data frame
+corrData$database <- NULL
+
+corrMat <- data.matrix(corrData)
+#col_dend <- dendsort(hclust(dist(t(corrMat))))
+
+Heatmap(corrMat, 
+        cluster_rows = FALSE, 
+        cluster_columns = FALSE,
+        name = "Pearson correlation \n coefficient",
+        col = col_fun)
+```
+
+```{r}
+corrData <- read.csv('/Users/shanghongsim/Documents/GitHub/HU-ATRi-Code-Repository/r values RRM2B - 125 GO aggregate.csv', header = TRUE)
+
+#set specific column as row names
+rownames(corrData) <- corrData$database
+
+#remove original column from data frame
+corrData$database <- NULL
+
+corrMat <- data.matrix(corrData)
+
+#col_dend <- dendsort(hclust(dist(t(corrMat))))
+
+Heatmap(corrMat, 
+        cluster_rows = FALSE, 
+        cluster_columns = FALSE,
+        column_title = "RRM2B - 125 GO", 
+        column_title_side = "bottom", 
+        name = "r value",
+        col = col_fun)
+```
+
+```{r}
+corrData <- read.csv('/Users/shanghongsim/Documents/GitHub/HU-ATRi-Code-Repository/r values p53 - 125 GO aggregate.csv', header = TRUE)
+
+#set specific column as row names
+rownames(corrData) <- corrData$database
+
+#remove original column from data frame
+corrData$database <- NULL
+
+corrMat <- data.matrix(corrData)
+
+#col_dend <- dendsort(hclust(dist(t(corrMat))))
+
+Heatmap(corrMat, 
+        cluster_rows = FALSE, 
+        cluster_columns = FALSE,
+        column_title = "p53 - 125 GO", 
+        column_title_side = "bottom", 
+        name = "r value",
+        col = col_fun)
+```
+
+```{r}
+corrData <- read.csv('/Users/shanghongsim/Documents/GitHub/HU-ATRi-Code-Repository/r values RRM2B - 125 GO screen pub set.csv', header = TRUE)
+
+#set specific column as row names
+rownames(corrData) <- corrData$database
+
+#remove original column from data frame
+corrData$database <- NULL
+
+corrMat <- data.matrix(corrData)
+
+col_dend <- dendsort(hclust(dist(t(corrMat))))
+
+Heatmap(corrMat, 
+        cluster_rows = FALSE, 
+        column_title = "RRM2B - 125 GO", 
+        column_title_side = "bottom", 
+        name = "r value",
+        col = col_fun)
+```
+
+```{r}
+corrData <- read.csv('/Users/shanghongsim/Documents/GitHub/HU-ATRi-Code-Repository/r values RRM2B - 41 AOS screen.csv', header = TRUE)
+
+#set specific column as row names
+rownames(corrData) <- corrData$database
+
+#remove original column from data frame
+corrData$database <- NULL
+
+corrMat <- data.matrix(corrData)
+
+col_dend <- dendsort(hclust(dist(t(corrMat))))
+
+Heatmap(corrMat, 
+        cluster_rows = FALSE, 
+        column_title = "RRM2B - 41 AOS", 
+        column_title_side = "bottom", 
+        name = "r value",
+        col = col_fun)
+```
+
+```{r}
+corrData <- read.csv('/Users/shanghongsim/Documents/GitHub/HU-ATRi-Code-Repository/r values p53 - 125 GO screen pub set.csv', header = TRUE)
+
+#set specific column as row names
+rownames(corrData) <- corrData$database
+
+#remove original column from data frame
+corrData$database <- NULL
+
+corrMat <- data.matrix(corrData)
+
+col_dend <- dendsort(hclust(dist(t(corrMat))))
+
+Heatmap(corrMat, 
+        cluster_rows = FALSE, 
+        column_title = "p53 - 125 GO", 
+        column_title_side = "bottom", 
+        name = "r value",
+        col = col_fun)
+```
+
+```{r}
+corrData <- read.csv('/Users/shanghongsim/Documents/GitHub/HU-ATRi-Code-Repository/r values p53 - 41 AOS screen.csv', header = TRUE)
+
+#set specific column as row names
+rownames(corrData) <- corrData$database
+
+#remove original column from data frame
+corrData$database <- NULL
+
+corrMat <- data.matrix(corrData)
+
+col_dend <- dendsort(hclust(dist(t(corrMat))))
+
+Heatmap(corrMat, 
+        cluster_rows = FALSE, 
+        column_title = "p53 - 41 AOS", 
+        column_title_side = "bottom", 
+        name = "r value",
+        col = col_fun)
+```
+
+```{r}
+corrData <- read.csv('/Users/shanghongsim/Documents/GitHub/HU-ATRi-Code-Repository/r values RRM2B - 125 GO screen v2.csv', header = TRUE)
+
+#set specific column as row names
+rownames(corrData) <- corrData$database
+
+#remove original column from data frame
+corrData$database <- NULL
+
+corrMat <- data.matrix(corrData)
+
+col_dend <- dendsort(hclust(dist(t(corrMat))))
+
+Heatmap(corrMat, 
+        cluster_rows = FALSE, 
+        column_title = "RRM2B - 125 GO", 
+        column_title_side = "bottom", 
+        name = "r value",
+        col = col_fun)
+```
+
+```{r}
+corrData <- read.csv('/Users/shanghongsim/Documents/GitHub/HU-ATRi-Code-Repository/r values p53 - 125 GO screen v2.csv', header = TRUE)
+
+#set specific column as row names
+rownames(corrData) <- corrData$database
+
+#remove original column from data frame
+corrData$database <- NULL
+
+corrMat <- data.matrix(corrData)
+
+col_dend <- dendsort(hclust(dist(t(corrMat))))
+
+Heatmap(corrMat, 
+        cluster_rows = FALSE, 
+        column_title = "p53 - 125 GO", 
+        column_title_side = "bottom", 
+        name = "r value",
+        col = col_fun)
+```
+
+```{r}
+corrData <- read.csv('/Users/shanghongsim/Documents/GitHub/HU-ATRi-Code-Repository/r values RRM2B - 41 AOS screen v2.csv', header = TRUE)
+
+#set specific column as row names
+rownames(corrData) <- corrData$database
+
+#remove original column from data frame
+corrData$database <- NULL
+
+corrMat <- data.matrix(corrData)
+
+col_dend <- dendsort(hclust(dist(t(corrMat))))
+
+Heatmap(corrMat, 
+        cluster_rows = FALSE, 
+        column_title = "RRM2B - 41  AOS", 
+        column_title_side = "bottom", 
+        name = "r value",
+        col = col_fun)
+```
+
+```{r}
+corrData <- read.csv('/Users/shanghongsim/Documents/GitHub/HU-ATRi-Code-Repository/r values p53 - 41 AOS screen v2.csv', header = TRUE)
+
+#set specific column as row names
+rownames(corrData) <- corrData$database
+
+#remove original column from data frame
+corrData$database <- NULL
+
+corrMat <- data.matrix(corrData)
+
+col_dend <- dendsort(hclust(dist(t(corrMat))))
+
+Heatmap(corrMat, 
+        cluster_rows = FALSE, 
+        column_title = "p53 - 41 AOS", 
+        column_title_side = "bottom", 
+        name = "r value",
+        col = col_fun)
+```
+
+```{r}
+corrData <- read.csv('/Users/shanghongsim/Documents/GitHub/HU-ATRi-Code-Repository/r values RRM2B - 125 GO screen with average.csv', header = TRUE)
+
+#set specific column as row names
+rownames(corrData) <- corrData$database
+
+#remove original column from data frame
+corrData$database <- NULL
+
+corrMat <- data.matrix(corrData)
+
+col_dend <- dendsort(hclust(dist(t(corrMat))))
+
+Heatmap(corrMat, 
+        cluster_rows = FALSE, 
+        column_title = "RRM2B - 125 GO", 
+        column_title_side = "bottom", 
+        name = "r value",
+        col = col_fun)
+```
+
+```{r}
+corrData <- read.csv('/Users/shanghongsim/Documents/GitHub/HU-ATRi-Code-Repository/r values p53 - 125 GO screen with average.csv', header = TRUE)
+
+#set specific column as row names
+rownames(corrData) <- corrData$database
+
+#remove original column from data frame
+corrData$database <- NULL
+
+corrMat <- data.matrix(corrData)
+
+col_dend <- dendsort(hclust(dist(t(corrMat))))
+
+Heatmap(corrMat, 
+        cluster_rows = FALSE, 
+        column_title = "p53 - 125 GO", 
+        column_title_side = "bottom", 
+        name = "r value",
+        col = col_fun)
+```
+
+``` r
+{r}
 ```
 
 Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.

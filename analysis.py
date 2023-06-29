@@ -12,78 +12,27 @@ from sklearn.impute import SimpleImputer
 def construct_hccdb_filename(n):
     expression = "./data/HCCDB/HCCDB" + n + "_mRNA_level3.txt"
     pheno = "./data/HCCDB/HCCDB" + n  + ".sample.txt"
-    return expression,pheno
+    return expression, pheno
 
 # function to get HCCDB data
 def get_hccdb_data(n):
     df = pd.read_csv(n, index_col = 1, sep = "\t").drop(["Entrez_ID"], axis=1) # gene x patient
     return df
 
-# function to fetch all gene signatures from source file
-def get_gene_signature_file():
-    df = pd.read_csv("./data/oxstress genes.csv", index_col=None, header= 0)
-    return df
-
-# function to get relevant signatures from gene signature dataframe
-def get_xy_set(gene_set, xvar=None,yvar=None):
-    if xvar != "RRM2B"and xvar != None:
-        x_set = gene_set[xvar].dropna().tolist()
-    else:
-        x_set = ["RRM2B"]
-
-    if yvar != "G6PD" and yvar != None:
-        y_set = gene_set[yvar].dropna().tolist()
-    else:
-        y_set = ["G6PD"]
-    targets = list(set(x_set + y_set))
-    return x_set, y_set, targets
-
-# extract the specific cancer type from the data
-def extract_rows_by_type(data, hccdb=None, db='PANCAN'):
-    if db.startswith("HCCDB"):
-        df = hccdb.T
-        df = df[df["ptype"] == db]
-        df = df.T
-        df.drop(["ptype"], inplace = True)
-    elif db == "PANCAN":
-        df = data
-        df = df.T
-        df.drop(["ptype","sample_type_id", "sample_type", "_primary_disease"], inplace = True)
-    elif db == "Aggregated": 
-        ls = ['STAD', 'HNSC', 'SARC', 'UCS','LUSC', 'BRCA']
-        df = data[data["ptype"].isin(ls)]
-        df = df.T
-        df.drop(["ptype","sample_type_id", "sample_type", "_primary_disease"], inplace = True)	
-    else:
-        df = data[data["ptype"] == db]
-        df = df.T
-        df.drop(["ptype","sample_type_id", "sample_type", "_primary_disease"], inplace = True)	
-    return df
-
-# returns 60 x 40 figure
-def generate_subplots(title, x, y):
-    tot = len(y)
-    cols = 8
-    rows = tot//8
-    if tot % cols != 0:
-        rows += 1
-    fig, axs = plt.subplots(rows, cols, figsize=(60, 40), sharey=True)
-    plt.subplots_adjust(hspace=0.6)
-    fig.suptitle(title,fontsize = 40)
-    return fig, axs
-    
 # get raw data from HCCDB and TCGA files
-def get_raw_data():
+def get_raw_data(hccdb_names = None):
+    
     # script to consolidate all HCCDB data into one dataframe
-    hccdb_names = ["1", "3", "4",  "8", "9", "11", "12", "13", "14", "16", "17", "18"]
+    if hccdb_names == None:
+        hccdb_names = ["1", "3", "4",  "8", "9", "11", "12", "13", "14", "16", "17", "18"]
     hccdb = pd.DataFrame()
 
     for i in range(len(hccdb_names)):
         n1, n2 = construct_hccdb_filename(hccdb_names[i])
         hccdb_temp = get_hccdb_data(n1)
-        hccdb_temp = hccdb_temp.loc[~hccdb_temp.index.duplicated(),:].copy()
-        hccdb_temp.loc["ptype",:] = "HCCDB-" + hccdb_names[i]
-        hccdb = pd.concat([hccdb, hccdb_temp], axis = 1) # patients x genes
+        hccdb_temp = hccdb_temp.loc[~hccdb_temp.index.duplicated(),:].copy() # remove duplicated indices and copy into new dataframe
+        hccdb_temp.loc["ptype",:] = "HCCDB-" + hccdb_names[i] # label type of cancer
+        hccdb = pd.concat([hccdb, hccdb_temp], axis = 1) # append to overall dataframe. shape: patients x genes
 
     # load pancan data
     tcga = pd.read_csv("./data/EB++AdjustPANCAN_IlluminaHiSeq_RNASeqV2.geneExp (1).xena", index_col = 0, sep = "\t") # gene x patient
@@ -168,9 +117,75 @@ def get_raw_data():
     
     return data, hccdb
 
+# function to fetch all gene signatures from source file
+def get_gene_signature_file():
+    df = pd.read_csv("./data/oxstress genes.csv", index_col=None, header= 0)
+    return df
+
+def get_db_for_single_gene_analysis(fn):
+    ls = pd.read_csv(fn, header= None, sep = ",").loc[0].to_list()
+    ls = list(set([s.strip() for s in ls]))
+    return ls
+
+# function to get relevant signatures from gene signature dataframe
+def get_xy_set(gene_set, xvar=None,yvar=None):
+    if xvar != "RRM2B" and xvar != None:
+        x_set = gene_set[xvar].dropna().tolist()
+    else:
+        x_set = ["RRM2B"]
+
+    if yvar != "G6PD" and yvar != None:
+        y_set = gene_set[yvar].dropna().tolist()
+    else:
+        y_set = ["G6PD"]
+    targets = list(set(x_set + y_set))
+    return x_set, y_set, targets
+
+# extract the specific cancer type from the data
+def extract_rows_by_type(data, hccdb=None, db='PANCAN'):
+    print(db)
+    if type(db) != list:
+        if db.startswith("HCCDB"):
+            df = hccdb.T
+            df = df[df["ptype"] == db]
+            df = df.T
+            df.drop(["ptype"], inplace = True)
+        elif db == "PANCAN":
+            df = data
+            df = df.T
+            df.drop(["ptype","sample_type_id", "sample_type", "_primary_disease"], inplace = True)
+        elif db == "Aggregated": 
+            ls = ['STAD', 'HNSC', 'SARC', 'UCS','LUSC', 'BRCA']
+            df = data[data["ptype"].isin(ls)]
+            df = df.T
+            df.drop(["ptype","sample_type_id", "sample_type", "_primary_disease"], inplace = True)	
+        else:
+            df = data[data["ptype"] == db]
+            df = df.T
+            df.drop(["ptype","sample_type_id", "sample_type", "_primary_disease"], inplace = True)	
+    else:
+        ls = db
+        df = data[data["ptype"].isin(ls)]
+        df = df.T
+        df.drop(["ptype","sample_type_id", "sample_type", "_primary_disease"], inplace = True)	
+    return df
+
+# returns 60 x 40 figure
+def generate_subplots(title, x, y):
+    tot = len(y)
+    cols = 8
+    rows = tot//8
+    if tot % cols != 0:
+        rows += 1
+    fig, axs = plt.subplots(rows, cols, figsize=(6, 4), sharey=True)
+    plt.subplots_adjust(hspace=0.6)
+    fig.suptitle(title,fontsize = 40)
+    return fig, axs
+    
 # function to subset relevant genes, impute missing data, normalise data, and get composite scores
 def process_data(raw_data, targets, x_var_names, y_var_names, pheno_filtered=None, outlier_corrected = False):
     print("entering process data")
+    
     # df is inputted as gene x patient 
     df = raw_data.T # patients x genes
     print("transposed")
