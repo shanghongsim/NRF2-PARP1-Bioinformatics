@@ -1,22 +1,43 @@
-# HU-ATRi-Code-Repository
+# p53-dependent crosstalk between DNA replication integrity and redox metabolism mediated through a NRF2-PARP1 axis 
 
-Heatmap code is in Rcode/Heatmap.Rmd
+> 📣 This paper has been accepted at Nucleic Acids Research!
 
-analysis.py contains all the functions used to analyse data
+This is the official repository containing the bioinformatics scripts used in p53-dependent crosstalk between DNA replication integrity and redox metabolism mediated through a NRF2-PARP1 axis (published at Nucleic Acids Research). 🧬
 
-gene_correlation_screen.ipynb contains script that calculated r value of each siganture/gene against another signature/gene of interest for every cancer in TCGA
+## Repository structure
 
-single_gene_screen.ipynb contains code to find the correlation of expresssion of every gene in a gene set eg 125 genes in oxidative stress signature to a target gene of interest\
+```text
+Project File Structure:
+├── Rcode/                            # Folder containing all bioinformtics scripts in R
+│   ├── Heatmap.Rmd                   # Script to plot heatmap figures in the paper
+├── Results/                          # Folder containing key figures used for the paper
+├── analysis.py                       # Main script for data analysis: fetch, process, analyze and plot
+├── calculate_overlap.ipynb           # Script to compute overlap between oxidative stress gene set and antioxidant gene set
+├── gene_correlation_screen.ipynb     # Script to compute the pairwise correlation (r-value) of every signature/gene and cancer in TCGA
+├── gsea_results_plotter.ipynb        # Script to plot GSEA/STRING results as bar or scatterplot
+├── oxstress_factor_boxplot.ipynb     # Script to plot r-values of each signature against RRM2B as a boxplot
+├── preprocess_for_gsea.ipynb         # Script to split data into low vs high RRM2B expression cohorts for GSEA analysis
+├── signature_screen.ipynb            # Script to find the r-value of every gene signature against RRM2B
+├── single_gene_screen.ipynb          # Script to correlate expression of every gene in the oxidative stress signature to a target gene of interest
+├── venn_diagram_plotter.ipynb        # Script to plot Venn diagram with 2-6 sets
 
-oxstress_factor_boxplot.ipynb plots r values of each signature against RRM2B as a boxplot
+```
 
-calculate_overlap.ipynb compares 125 oxstress gene set aganst 42 antioxidant gene set and calculates the overlap between these two sets.
+## Citation
 
-preprocess_for_gsea.ipynb splits data into low vs high RRM2B cohorts for GSEA analysis
+Please cite out paper if you found our work useful for your research!
 
-venn_diagram_plotter.ipynb plots Venn diagram with 2-6 sections
+```bibtext
+@article{elfar2024p53redoxmetabolism,
+      title={p53-dependent crosstalk between DNA replication integrity and redox metabolism mediated through a NRF2-PARP1 axis}, 
+      author={Gamal Ahmed Elfar and Obed Aning and Tsz Wai Ngai and Pearlyn Yeo and Joel Wai Kit Chan and Shang Hong Sim and Leonard Goh and Ju Yuan and Cheryl Zi Jin Phua and Joanna Zhen Zhen Yeo},
+      journal={Nucleic Acids Research}, 
+      volume={52},
+      number={20},
+      pages={12351--12377},
+      year={2024},
+      doi={10.1093/nar/gkae811},
+      url={https://doi.org/10.1093/nar/gkae811},
+}
 
-gsea_results_plotter.ipynb plots GSEA/STRING results as bar or scatterplot
-
-signature_screen.ipynb finds the r value of every gene signature against RRM2B
-
+```

@@ -173,3 +173,7 @@ data/
 *.tab
 *.gz
 *.jpeg
+
+String/
+GSEA/
+Extra/
