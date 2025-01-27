@@ -4,13 +4,33 @@
 
 This is the official repository containing the bioinformatics scripts used in p53-dependent crosstalk between DNA replication integrity and redox metabolism mediated through a NRF2-PARP1 axis (published at Nucleic Acids Research). 🧬
 
+## Figures
+
+<div style="display: flex; justify-content: center; align-items: flex-end; gap: 10px; flex-wrap: nowrap;">
+  <figure style="width: 25%; text-align: center; display: flex; flex-direction: column; align-items: center;">
+    <img src="assets/p53 vs rrm2b.png" alt="Heatmap 3" style=" height: 200px">
+    <figcaption>Plot showing correlation between normalized log2 RRM2B expression and p53 gene signature activity</figcaption>
+  </figure>
+
+  <figure style="width: 25%; text-align: center; display: flex; flex-direction: column; align-items: center;">
+    <img src="assets/RRM2B - 125 GO.png" alt="Heatmap" style=" height: 200px">
+    <figcaption>Hierarchical heatmap showing the correlation of RRM2B with other genes.</figcaption>
+  </figure>
+  
+  <figure style="width: 25%; text-align: center; display: flex; flex-direction: column; align-items: center;">
+    <img src="assets/STRING nrf2 wikipathways.png" alt="Heatmap 2" style=" height: 200px">
+    <figcaption>Plot showing the STRING enrichment of the largest cluster derived from hierarchical heatmap</figcaption>
+  </figure>
+</div>
+
+
 ## Repository structure
 
 ```text
 Project File Structure:
 ├── Rcode/                            # Folder containing all bioinformtics scripts in R
 │   ├── Heatmap.Rmd                   # Script to plot heatmap figures in the paper
-├── Results/                          # Folder containing key figures used for the paper
+├── assets/                          # Folder containing key figures used for the paper
 ├── analysis.py                       # Main script for data analysis: fetch, process, analyze and plot
 ├── calculate_overlap.ipynb           # Script to compute overlap between oxidative stress gene set and antioxidant gene set
 ├── gene_correlation_screen.ipynb     # Script to compute the pairwise correlation (r-value) of every signature/gene and cancer in TCGA
@@ -22,6 +42,7 @@ Project File Structure:
 ├── venn_diagram_plotter.ipynb        # Script to plot Venn diagram with 2-6 sets
 
 ```
+
 
 ## Citation
 
