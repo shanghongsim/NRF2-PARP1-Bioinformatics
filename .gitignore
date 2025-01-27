@@ -161,7 +161,6 @@ cython_debug/
 
 data/
 .Rproj.user
-*.png
 *.csv
 *.zip
 *.pdf 

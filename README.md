@@ -8,7 +8,7 @@ This is the official repository containing the bioinformatics scripts used in p5
 
 <div style="display: flex; justify-content: center; align-items: flex-end; gap: 10px; flex-wrap: nowrap;">
   <figure style="width: 25%; text-align: center; display: flex; flex-direction: column; align-items: center;">
-    <img src="assets/p53 vs rrm2b.png" alt="Heatmap 3" style=" height: 200px">
+    <img src="assets/p53 vs rrm2b.png" alt="Correlation plot" style=" height: 200px">
     <figcaption>Plot showing correlation between normalized log2 RRM2B expression and p53 gene signature activity</figcaption>
   </figure>
 
@@ -18,7 +18,7 @@ This is the official repository containing the bioinformatics scripts used in p5
   </figure>
   
   <figure style="width: 25%; text-align: center; display: flex; flex-direction: column; align-items: center;">
-    <img src="assets/STRING nrf2 wikipathways.png" alt="Heatmap 2" style=" height: 200px">
+    <img src="assets/STRING nrf2 wikipathways.png" alt="Enrichment plot" style=" height: 200px">
     <figcaption>Plot showing the STRING enrichment of the largest cluster derived from hierarchical heatmap</figcaption>
   </figure>
 </div>
