@@ -6,22 +6,10 @@ This is the official repository containing the bioinformatics scripts used in p5
 
 ## Figures
 
-<div style="display: flex; justify-content: center; align-items: flex-end; gap: 10px; flex-wrap: nowrap;">
-  <figure style="width: 25%; text-align: center; display: flex; flex-direction: column; align-items: center;">
-    <img src="assets/p53 vs rrm2b.png" alt="Correlation plot" style=" height: 200px">
-    <figcaption>Plot showing correlation between normalized log2 RRM2B expression and p53 gene signature activity</figcaption>
-  </figure>
+| ![Correlation plot](assets/p53%20vs%20rrm2b.png)                     | ![Heatmap](assets/RRM2B%20-%20125%20GO.png)                           | ![Enrichment plot](assets/STRING%20nrf2%20wikipathways.png)            |
+|----------------------------------------------------------------------|----------------------------------------------------------------------|----------------------------------------------------------------------|
+| Plot showing correlation between normalized log2 RRM2B expression and p53 gene signature activity | Hierarchical heatmap showing the correlation of RRM2B with other genes. | Plot showing the STRING enrichment of the largest cluster derived from hierarchical heatmap |
 
-  <figure style="width: 25%; text-align: center; display: flex; flex-direction: column; align-items: center;">
-    <img src="assets/RRM2B - 125 GO.png" alt="Heatmap" style=" height: 200px">
-    <figcaption>Hierarchical heatmap showing the correlation of RRM2B with other genes.</figcaption>
-  </figure>
-  
-  <figure style="width: 25%; text-align: center; display: flex; flex-direction: column; align-items: center;">
-    <img src="assets/STRING nrf2 wikipathways.png" alt="Enrichment plot" style=" height: 200px">
-    <figcaption>Plot showing the STRING enrichment of the largest cluster derived from hierarchical heatmap</figcaption>
-  </figure>
-</div>
 
 
 ## Repository structure
